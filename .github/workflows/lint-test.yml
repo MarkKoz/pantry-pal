@@ -65,11 +65,13 @@ jobs:
                       ${{ hashFiles('./.pre-commit-config.yaml') }}"
 
             # Disable user installs for pre-commit since it doesn't support them.
+            # Skip the flake8 hook because the following command will run it.
             - name: Run pre-commit hooks
-              run: export PIP_USER=0; SKIP=black pre-commit run --all-files
-
-            - name: Run black
-              run: black --check --diff .
+              id: run-pre-commit-hooks
+              run: |
+                  export PIP_USER=0
+                  SKIP=flake8 pre-commit run --all-files
+                  pre-commit run --all-files --hook-stage manual flake8-annotate
 
             - name: Run tests and coverage
               run: |
